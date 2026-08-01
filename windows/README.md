@@ -30,7 +30,6 @@ The toolkit is organized into themed modules that load automatically from a sing
 
 ```powershell
 New-Item -ItemType Directory -Path "$HOME\.config\alias\docker-commandes" -Force
-Copy-Item -Path "index.ps1" -Destination "$HOME\.config\alias\docker-commandes\"
 Copy-Item -Path "windows" -Destination "$HOME\.config\alias\docker-commandes\" -Recurse
 ```
 
@@ -64,7 +63,7 @@ code $PROFILE
 Append the following line to your profile:
 
 ```powershell
-. "$HOME\.config\alias\docker-commandes\index.ps1"
+. "$HOME\.config\alias\docker-commandes\windows\index.ps1"
 ```
 
 `index.ps1` is the entry point. It dot-sources every module located in the `windows/` folder next to it, so the shortcuts work no matter where the project has been copied to.
@@ -129,7 +128,7 @@ Get-Help dRunContainer
 2. Delete the directory:
 
 ```powershell
-Remove-Item -Path "$HOME\.config\alias\docker-commandes" -Recurse -Force
+Remove-Item -Path "$HOME\.config\alias\docker-commandes\windows" -Recurse -Force
 ```
 
 ## Troubleshooting

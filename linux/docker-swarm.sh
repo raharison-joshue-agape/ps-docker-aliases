@@ -5,7 +5,13 @@
 # Usage: dInitSwarm [--advertise-addr IP]
 dInitSwarm() {
     d_check_cli || return 1
-    local AdvertiseAddr="${1:-}"
+    local AdvertiseAddr=""
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            --advertise-addr) AdvertiseAddr="$2"; shift 2 ;;
+            *) printf '%s❌ Unknown option: %s%s\n' "$dRed" "$1" "$dReset"; return 1 ;;
+        esac
+    done
 
     printf '%s🚀 Initializing Docker Swarm cluster...%s\n' "$dCyan" "$dReset"
 
@@ -36,8 +42,12 @@ dJoinSwarm() {
 # Usage: dLeaveSwarm [-f]
 dLeaveSwarm() {
     d_check_cli || return 1
-    local Force=0
-    [ "$1" = "-f" ] || [ "$1" = "--force" ] && Force=1
+    local Force=0 arg
+    for arg in "$@"; do
+        case "$arg" in
+            -f|--force) Force=1 ;;
+        esac
+    done
 
     d_confirm "Leave the Docker Swarm cluster?" || return 1
 
@@ -191,9 +201,10 @@ dStackRemove() {
     d_show_result "✅ Stack '$StackName' removed successfully!" "❌ Failed to remove stack '$StackName'."
 }
 
+# Usage: dSwarmDocs
 dSwarmDocs() {
     d_doc_table "🐳 Docker Swarm Commands" \
-        "dInitSwarm [advertiseAddr]" "Initialize a Docker Swarm cluster" \
+        "dInitSwarm [--advertise-addr IP]" "Initialize a Docker Swarm cluster" \
         "dJoinSwarm [token] [managerIP]" "Join a Swarm cluster" \
         "dLeaveSwarm [-f]" "Leave the Swarm cluster" \
         "dSwarmToken [role]" "Show the manager/worker join token" \

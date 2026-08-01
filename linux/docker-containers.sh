@@ -5,14 +5,17 @@
 # Usage: dContainers [-a|--all]
 dContainers() {
     d_check_cli || return 1
-    local all=0
-    local arg
+    local all=0 arg
     for arg in "$@"; do
         case "$arg" in
             -a|--all) all=1 ;;
         esac
     done
-    docker ps $([ "$all" -eq 1 ] && echo -a)
+
+    local cmd=(ps)
+    [ "$all" -eq 1 ] && cmd+=(-a)
+
+    docker "${cmd[@]}"
 }
 
 # Usage: dRunContainer [image] [--name NAME] [-d|--detach] [--rm] [-it]
@@ -238,22 +241,25 @@ dLogsContainer() {
     docker "${cmd[@]}"
 }
 
-# Usage: dExecContainer [name] [command] [-d|--detach]
+# Usage: dExecContainer [name] [command...] [-d|--detach]
 dExecContainer() {
     d_check_cli || return 1
-    local ContainerName="" Command="bash" detach=0
+    local ContainerName="" detach=0
+    local -a CmdArgs=()
     while [ $# -gt 0 ]; do
         case "$1" in
             -d|--detach) detach=1; shift ;;
-            *) [ -z "$ContainerName" ] && ContainerName="$1" || Command="${1//+/ }"; shift ;;
+            *) [ -z "$ContainerName" ] && ContainerName="$1" || CmdArgs+=("$1"); shift ;;
         esac
     done
+    [ "${#CmdArgs[@]}" -eq 0 ] && CmdArgs=(bash)
 
     ContainerName="$(d_resolve_container "$ContainerName" "Enter the container name or ID to execute a command")"
     [ -z "$ContainerName" ] && { printf '%s❌ No container name provided.%s\n' "$dRed" "$dReset"; return 1; }
     d_container_running "$ContainerName" || { printf '%s❌ Container %s is not running.%s\n' "$dRed" "$ContainerName" "$dReset"; return 1; }
 
-    printf '%s💻 Executing %s in container %s...%s\n' "$dCyan" "$Command" "$ContainerName" "$dReset"
+    local cmd_str="${CmdArgs[*]}"
+    printf '%s💻 Executing %s in container %s...%s\n' "$dCyan" "$cmd_str" "$ContainerName" "$dReset"
 
     local cmd=(exec)
     if [ "$detach" -eq 1 ]; then
@@ -261,10 +267,7 @@ dExecContainer() {
     else
         cmd+=(-it)
     fi
-    cmd+=("$ContainerName")
-
-    read -r -a cmd_parts <<< "$Command"
-    cmd+=("${cmd_parts[@]}")
+    cmd+=("$ContainerName" "${CmdArgs[@]}")
 
     docker "${cmd[@]}"
 }
@@ -298,8 +301,7 @@ dTopContainer() {
 # Usage: dStatsContainer [-a|--all]
 dStatsContainer() {
     d_check_cli || return 1
-    local all=0
-    local arg
+    local all=0 arg
     for arg in "$@"; do
         case "$arg" in
             -a|--all) all=1 ;;
@@ -308,7 +310,10 @@ dStatsContainer() {
 
     printf '%s📊 Docker container stats (Press Ctrl + C to exit)...%s\n' "$dCyan" "$dReset"
 
-    docker stats $([ "$all" -eq 1 ] && echo -a)
+    local cmd=(stats)
+    [ "$all" -eq 1 ] && cmd+=(-a)
+
+    docker "${cmd[@]}"
 }
 
 # Usage: dWaitContainer [name]
@@ -498,6 +503,7 @@ dPortContainer() {
     docker port "$ContainerName"
 }
 
+# Usage: dContainerDocs
 dContainerDocs() {
     d_doc_table "🐳 Docker Container Commands" \
         "dContainers [-a]" "List containers (running by default, all with -a)" \
@@ -509,7 +515,7 @@ dContainerDocs() {
         "dKillContainer [name]" "Force stop (kill) a container" \
         "dRemoveContainer [name] [-f] [-v]" "Remove a container" \
         "dLogsContainer [name] [-f] [-n N]" "Show container logs" \
-        "dExecContainer [name] [command]" "Execute a command inside a running container" \
+        "dExecContainer [name] [command...]" "Execute a command inside a running container" \
         "dAttachContainer [name]" "Attach to a container terminal" \
         "dTopContainer [name]" "Show running processes inside a container" \
         "dStatsContainer [-a]" "Show live resource usage for containers" \

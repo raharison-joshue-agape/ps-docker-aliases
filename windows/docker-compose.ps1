@@ -3,9 +3,11 @@
 # restart, pull, config validation, and stop. No Invoke-Expression - arguments
 # are always passed as arrays to the Docker CLI.
 
-# Description:
-# Resolves the compose file (docker-compose.yml / compose.yaml / ...) in a path.
-# Returns $null and prints an error when no compose file is found.
+<#
+.SYNOPSIS
+Resolves the compose file (docker-compose.yml / compose.yaml / ...) in a path.
+Returns $null and prints an error when no compose file is found.
+#>
 function Get-ComposeFile {
     param([string]$Path = ".")
 
@@ -20,8 +22,10 @@ function Get-ComposeFile {
     return $null
 }
 
-# Description:
-# Prompts for a service name, listing compose services first when needed.
+<#
+.SYNOPSIS
+Prompts for a service name, listing compose services first when needed.
+#>
 function Resolve-ComposeService {
     param(
         [string]$Service,
@@ -190,7 +194,7 @@ function dComposeExec {
     Write-Host "💻 Executing '$Command' in service '$Service'..." -ForegroundColor Cyan
 
     $cmd = @("compose", "-f", $composeFile, "exec", "-it", $Service)
-    $cmd += $Command.Split(" ")
+    $cmd += ($Command -split "\s+" | Where-Object { $_ })
 
     docker @cmd
 }

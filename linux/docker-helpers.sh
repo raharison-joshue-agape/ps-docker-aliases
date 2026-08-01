@@ -3,12 +3,12 @@
 # Keeps the command files short, consistent, and free of duplicated logic.
 
 # ---------------- Colors ----------------
-dCyan=$'\033[36m'
-dYellow=$'\033[33m'
-dGreen=$'\033[32m'
-dRed=$'\033[31m'
-dGray=$'\033[90m'
-dReset=$'\033[0m'
+readonly dCyan=$'\033[36m'
+readonly dYellow=$'\033[33m'
+readonly dGreen=$'\033[32m'
+readonly dRed=$'\033[31m'
+readonly dGray=$'\033[90m'
+readonly dReset=$'\033[0m'
 
 # ---------------- CLI checks ----------------
 # Returns 0 when the Docker CLI is available.
@@ -25,6 +25,7 @@ d_check_cli() {
 # Returns 0 when confirmed.
 d_confirm() {
     local msg="${1:-Continue?}"
+    local ans
     printf '%s⚠  %s (Y/N)%s ' "$dYellow" "$msg" "$dReset"
     read -r ans
     case "$ans" in

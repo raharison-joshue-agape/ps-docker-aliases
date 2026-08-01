@@ -80,7 +80,7 @@ function dRunContainer {
 
     if ($Network) { $cmd += "--network"; $cmd += $Network }
     if ($Restart) { $cmd += "--restart"; $cmd += $Restart }
-    if ($ExtraArgs) { $cmd += $ExtraArgs.Split(" ") }
+    if ($ExtraArgs) { $cmd += ($ExtraArgs -split "\s+" | Where-Object { $_ }) }
 
     $cmd += $ImageName
 
@@ -130,7 +130,7 @@ function dCreateContainer {
     foreach ($e in $Env) { $cmd += "-e"; $cmd += $e }
 
     if ($Network) { $cmd += "--network"; $cmd += $Network }
-    if ($ExtraArgs) { $cmd += $ExtraArgs.Split(" ") }
+    if ($ExtraArgs) { $cmd += ($ExtraArgs -split "\s+" | Where-Object { $_ }) }
 
     $cmd += $ImageName
 
@@ -369,7 +369,7 @@ function dExecContainer {
     $cmd = @("exec")
     if ($Detach) { $cmd += "-d" } else { $cmd += "-it" }
     $cmd += $ContainerName
-    $cmd += $Command.Split(" ")
+    $cmd += ($Command -split "\s+" | Where-Object { $_ })
 
     docker @cmd
 }
@@ -540,7 +540,7 @@ function dUpdateContainer {
     Write-Host "⚙️ Updating container '$ContainerName'..." -ForegroundColor Cyan
 
     $cmd = @("update")
-    $cmd += $Options.Split(" ")
+    $cmd += ($Options -split "\s+" | Where-Object { $_ })
     $cmd += $ContainerName
 
     docker @cmd

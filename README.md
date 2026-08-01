@@ -105,7 +105,7 @@ L'implémentation suit une **architecture modulaire en couches**, chaque couche 
 - **`index.sh` / `index.ps1`** : source l'ensemble des modules situés dans son propre répertoire, quel que soit l'endroit où le projet a été copié.
 - **Modules thématiques** : chacun expose les fonctions publiques `d*` d'un domaine Docker.
 - **Helpers** : portent la logique transversale (disponibilité de Docker, exécution, feedback coloré).
-- Les deux implémentations (`linux/` et `windows/`) sont **fonctionnellement équivalentes** : mêmes commandes, mêmes options, mêmes comportements.
+- Les deux implémentations (`linux/` et `windows/`) sont **fonctionnellement équivalentes** : mêmes commandes, mêmes comportements. Les options suivent la convention de chaque shell — flags courts en bash (`-d`, `-a`, `-v`), paramètres nommés en PowerShell (`-Detach`, `-All`, `-Volumes`).
 
 ---
 
@@ -195,7 +195,6 @@ source ~/.zshrc       # ou : source ~/.bash_profile
 
 ```powershell
 New-Item -ItemType Directory -Path "$HOME\.config\alias\docker-commandes" -Force
-Copy-Item -Path "index.ps1" -Destination "$HOME\.config\alias\docker-commandes\"
 Copy-Item -Path "windows" -Destination "$HOME\.config\alias\docker-commandes\" -Recurse
 ```
 
@@ -223,7 +222,7 @@ notepad $PROFILE      # ou : code $PROFILE
 Ajoutez cette ligne à votre profil :
 
 ```powershell
-. "$HOME\.config\alias\docker-commandes\index.ps1"
+. "$HOME\.config\alias\docker-commandes\windows\index.ps1"
 ```
 
 ### 5. Recharger votre profil
@@ -263,12 +262,12 @@ dLogsContainer web -Follow                   # suit les logs du conteneur web
 | Commande | Description |
 |---|---|
 | `dVersion / dver` | Affiche la version de Docker installée |
-| `dInfo` | Affiche les informations du système Docker |
+| `dInfo / dinfo` | Affiche les informations du système Docker |
 | `dDiskSystem / ddf` | Affiche l'utilisation du disque par Docker |
-| `dEvents` | Affiche en continu les événements du moteur Docker |
+| `dEvents / devents` | Affiche en continu les événements du moteur Docker |
 | `dPruneSystem / dprune` | Nettoie les conteneurs, images et réseaux inutilisés (`-v` ajoute les volumes) |
-| `dLogin` | S'authentifie auprès d'un registre Docker |
-| `dLogout` | Se déconnecte d'un registre Docker |
+| `dLogin / dlogin` | S'authentifie auprès d'un registre Docker |
+| `dLogout / dlogout` | Se déconnecte d'un registre Docker |
 
 ### 🐳 Images
 
@@ -360,7 +359,7 @@ dLogsContainer web -Follow                   # suit les logs du conteneur web
 | `dInitSwarm / dswarm` | Initialise un cluster Swarm |
 | `dJoinSwarm / dswarmjoin` | Rejoint un cluster Swarm (token + adresse du manager) |
 | `dLeaveSwarm / dswarmleave` | Quitte le cluster Swarm (`-f` même en tant que manager) |
-| `dSwarmToken` | Affiche le jeton d'adhésion manager / worker |
+| `dSwarmToken / dswarmtoken` | Affiche le jeton d'adhésion manager / worker |
 | `dNodes / dnodes` | Liste les nœuds du cluster |
 | `dServices / dsvcs` | Liste les services Swarm |
 | `dCreateService / dsvcc` | Crée un service Swarm |
@@ -368,7 +367,7 @@ dLogsContainer web -Follow                   # suit les logs du conteneur web
 | `dScaleService / dsvcscale` | Met à l'échelle un service (réplicas) |
 | `dServiceLogs / dsvclogs` | Affiche les logs d'un service |
 | `dStackDeploy / dstack` | Déploie une stack depuis un fichier Compose |
-| `dStacks` | Liste les stacks déployées |
+| `dStacks / dstacks` | Liste les stacks déployées |
 | `dStackRemove / dstackrm` | Supprime une stack déployée |
 
 ### 📖 Références
@@ -429,7 +428,6 @@ Chaque module regroupe les fonctions d'un même thème. Les deux plateformes son
 
 ```
 docker-commandes/
-├── index.ps1                  # Point d'entrée PowerShell (sourcez depuis $PROFILE)
 ├── linux/                     # Implémentation Bash pour Linux/macOS
 │   ├── index.sh               # Point d'entrée (charge tous les modules)
 │   ├── docker-helpers.sh      # Utilitaires partagés (d_check_cli, d_confirm...)
@@ -444,6 +442,7 @@ docker-commandes/
 │   ├── docker-aliases.sh      # Alias courts (dps, drun, dstop, dlogs...)
 │   └── README.md              # Guide d'installation Linux
 └── windows/                   # Implémentation PowerShell pour Windows
+    ├── index.ps1              # Point d'entrée PowerShell (sourcez depuis $PROFILE)
     ├── docker-helpers.ps1     # Utilitaires partagés (Test-DockerCLI, Confirm-Action...)
     ├── docker-system.ps1      # dVersion, dInfo, dDiskSystem, dPruneSystem...
     ├── docker-images.ps1      # dImages, dBuildImage, dGetImage, dPushImage...

@@ -2,6 +2,7 @@
 # Local image management: listing, building, pulling, pushing, tagging,
 # importing/exporting, and inspecting images.
 
+# Usage: dImages
 dImages() {
     d_check_cli || return 1
     docker image ls
@@ -11,10 +12,10 @@ dImages() {
 dBuildImage() {
     d_check_cli || return 1
     local AppName="" Tag="latest" nocache=0
-    local arg
-    for arg in "$@"; do
-        case "$arg" in
-            -nc|--no-cache) nocache=1 ;;
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            -nc|--no-cache) nocache=1; shift ;;
+            *) [ -z "$AppName" ] && AppName="$1" || Tag="$1"; shift ;;
         esac
     done
 
@@ -235,6 +236,7 @@ dInspectImage() {
     docker inspect "$ImageName"
 }
 
+# Usage: dImageDocs
 dImageDocs() {
     d_doc_table "🐳 Docker Image Commands" \
         "dImages" "List all local Docker images" \

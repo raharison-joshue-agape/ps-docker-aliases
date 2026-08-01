@@ -130,16 +130,18 @@ dComposeLogs() {
     docker "${cmd[@]}"
 }
 
-# Usage: dComposeExec [path] [service] [command]
+# Usage: dComposeExec [path] [service] [command...]
 dComposeExec() {
     d_check_cli || return 1
-    local Path="." Service="" Command="bash"
+    local Path="." Service=""
+    local -a CmdArgs=()
     while [ $# -gt 0 ]; do
         case "$1" in
             -p|--path) Path="$2"; shift 2 ;;
-            *) [ -z "$Service" ] && Service="$1" || Command="$1"; shift ;;
+            *) [ -z "$Service" ] && Service="$1" || CmdArgs+=("$1"); shift ;;
         esac
     done
+    [ "${#CmdArgs[@]}" -eq 0 ] && CmdArgs=(bash)
 
     local cf
     cf="$(d_get_compose_file "$Path")" || { printf '%s❌ No Docker Compose file found in %s.%s\n' "$dRed" "$Path" "$dReset"; return 1; }
@@ -147,11 +149,9 @@ dComposeExec() {
     Service="$(d_resolve_compose_service "$Service" "$cf")"
     [ -z "$Service" ] && { printf '%s❌ No service provided.%s\n' "$dRed" "$dReset"; return 1; }
 
-    printf '%s💻 Executing %s in service %s...%s\n' "$dCyan" "$Command" "$Service" "$dReset"
+    printf '%s💻 Executing %s in service %s...%s\n' "$dCyan" "${CmdArgs[*]}" "$Service" "$dReset"
 
-    local cmd=(compose -f "$cf" exec -it "$Service")
-    read -r -a cmd_parts <<< "$Command"
-    cmd+=("${cmd_parts[@]}")
+    local cmd=(compose -f "$cf" exec -it "$Service" "${CmdArgs[@]}")
 
     docker "${cmd[@]}"
 }
@@ -217,6 +217,7 @@ dComposeValidate() {
     d_show_result "✅ Compose file is valid." "❌ Compose file is invalid."
 }
 
+# Usage: dComposeDocs
 dComposeDocs() {
     d_doc_table "🐳 Docker Compose Commands" \
         "dComposes [path]" "List Docker Compose services" \
@@ -224,7 +225,7 @@ dComposeDocs() {
         "dComposeDown [path] [-v] [--remove-orphans]" "Stop and remove Compose services" \
         "dComposeBuild [path]" "Build Compose service images" \
         "dComposeLogs [path] [service] [-f] [-n N]" "Show service logs" \
-        "dComposeExec [path] [service] [command]" "Execute a command in a service" \
+        "dComposeExec [path] [service] [command...]" "Execute a command in a service" \
         "dComposeRestart [path]" "Restart Compose services" \
         "dComposePull [path]" "Pull Compose images" \
         "dComposeStop [path]" "Stop services (keep containers)" \

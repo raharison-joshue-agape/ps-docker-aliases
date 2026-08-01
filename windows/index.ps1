@@ -2,9 +2,9 @@
 # Docker Command Aliases - main entry point.
 #
 # Add the following line to your PowerShell profile to load the toolkit:
-#   . "$HOME\.config\alias\docker-commandes\index.ps1"
+#   . "$HOME\.config\alias\docker-commandes\windows\index.ps1"
 
-$ModuleDir = Join-Path $PSScriptRoot "windows"
+$ModuleDir = $PSScriptRoot
 
 $Files = @(
     "docker-helpers.ps1",

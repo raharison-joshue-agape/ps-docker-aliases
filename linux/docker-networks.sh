@@ -124,8 +124,12 @@ dRemoveNetwork() {
 # Usage: dPruneNetwork [-f]
 dPruneNetwork() {
     d_check_cli || return 1
-    local Force=0
-    [ "$1" = "-f" ] || [ "$1" = "--force" ] && Force=1
+    local Force=0 arg
+    for arg in "$@"; do
+        case "$arg" in
+            -f|--force) Force=1 ;;
+        esac
+    done
 
     [ "$Force" -eq 0 ] && ! d_confirm "This will remove all unused Docker networks. Continue?" && return 1
 
@@ -135,6 +139,7 @@ dPruneNetwork() {
     d_show_result "✅ Unused Docker networks removed successfully!" "❌ Failed to prune Docker networks."
 }
 
+# Usage: dNetworkDocs
 dNetworkDocs() {
     d_doc_table "🐳 Docker Network Commands" \
         "dNetworks" "List all Docker networks" \

@@ -64,8 +64,12 @@ dRemoveVolume() {
 # Usage: dPruneVolume [-f]
 dPruneVolume() {
     d_check_cli || return 1
-    local Force=0
-    [ "$1" = "-f" ] || [ "$1" = "--force" ] && Force=1
+    local Force=0 arg
+    for arg in "$@"; do
+        case "$arg" in
+            -f|--force) Force=1 ;;
+        esac
+    done
 
     [ "$Force" -eq 0 ] && ! d_confirm "This will remove all unused Docker volumes. Continue?" && return 1
 
@@ -75,6 +79,7 @@ dPruneVolume() {
     d_show_result "✅ Unused Docker volumes removed successfully!" "❌ Failed to prune Docker volumes."
 }
 
+# Usage: dVolumeDocs
 dVolumeDocs() {
     d_doc_table "🐳 Docker Volume Commands" \
         "dVolumes" "List all Docker volumes" \

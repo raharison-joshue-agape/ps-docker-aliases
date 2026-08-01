@@ -19,7 +19,7 @@ dDocs() {
         "dGetImage / dpull" "Pull an image" \
         "dPushImage / dpush" "Push a local image" \
         "dRemoveImage / drmi" "Remove an image" \
-        "dPruneImage" "Remove unused/dangling images" \
+        "dPruneImage / dpruneimg" "Remove unused/dangling images" \
         "dTagImage / dtag" "Tag an image" \
         "dSaveImage / dsave" "Save an image to a .tar file" \
         "dLoadImage / dload" "Load an image from a .tar file" \

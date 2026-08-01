@@ -44,7 +44,9 @@ function dBuildImage {
         return
     }
 
-    $fullImageName = "$AppName`:$Tag"
+    # Derive a valid image name from the folder (handles paths like .\my-app or .)
+    $folderName = (Get-Item $AppName).Name
+    $fullImageName = "$folderName`:$Tag"
 
     $cmd = @("build")
     if ($NoCache) { $cmd += "--no-cache" }

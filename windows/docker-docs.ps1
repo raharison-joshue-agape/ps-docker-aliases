@@ -23,7 +23,7 @@ function dDocs {
         @{Command="dGetImage / dpull"; Description="Pull an image"},
         @{Command="dPushImage / dpush"; Description="Push a local image"},
         @{Command="dRemoveImage / drmi"; Description="Remove an image"},
-        @{Command="dPruneImage"; Description="Remove unused/dangling images"},
+        @{Command="dPruneImage / dpruneimg"; Description="Remove unused/dangling images"},
         @{Command="dTagImage / dtag"; Description="Tag an image"},
         @{Command="dSaveImage / dsave"; Description="Save an image to a .tar file"},
         @{Command="dLoadImage / dload"; Description="Load an image from a .tar file"},

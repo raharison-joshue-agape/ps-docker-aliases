@@ -1,22 +1,26 @@
 # docker-system.sh
 # Docker engine information, disk usage, cleanup, events, and registry auth.
 
+# Usage: dVersion
 dVersion() {
     d_check_cli || return 1
     docker --version
 }
 
+# Usage: dInfo
 dInfo() {
     d_check_cli || return 1
     docker info
 }
 
+# Usage: dDiskSystem
 dDiskSystem() {
     d_check_cli || return 1
     printf '%s📊 Docker disk usage:%s\n' "$dCyan" "$dReset"
     docker system df
 }
 
+# Usage: dEvents
 dEvents() {
     d_check_cli || return 1
     printf '%s👀 Streaming Docker events (Press Ctrl + C to exit)...%s\n' "$dCyan" "$dReset"
