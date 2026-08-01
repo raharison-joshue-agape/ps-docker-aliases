@@ -2,7 +2,7 @@
 
 # 🚀 Docker Command Aliases
 
-### Raccourcis Docker pour **Bash (Linux/macOS)** et **PowerShell (Windows)**
+### Raccourcis Docker pour **Bash (Linux)**, **Zsh (macOS)** et **PowerShell (Windows)**
 
 Suite d'aliases `d*` qui simplifient et accélèrent vos workflows Docker directement en ligne de commande.
 
@@ -49,8 +49,8 @@ Suite d'aliases `d*` qui simplifient et accélèrent vos workflows Docker direct
 |---|---|
 | ⚡ **Aliases `d*`** | Des dizaines de raccourcis vers les commandes Docker essentielles, identiques sur les trois plateformes |
 | 🧩 **Architecture modulaire** | Modules thématiques (système, images, conteneurs, Compose, volumes, réseaux, Swarm...) chargés depuis un point d'entrée unique |
-| 🐧 **Linux / Bash** | Scripts `.sh` compatibles bash 4.0+ et zsh |
-| 🍎 **macOS / Zsh** | Scripts `.sh` bash compatibles zsh, shell par défaut de macOS depuis Catalina |
+| 🐧 **Linux / Bash** | Scripts `.sh` natifs bash 4.0+ |
+| 🍎 **macOS / Zsh** | Scripts `.zsh` natifs pour zsh 5.x, shell par défaut de macOS depuis Catalina |
 | 🪟 **Windows / PowerShell** | Scripts `.ps1` compatibles Windows PowerShell 5.1+ et PowerShell 7 |
 | 🛡️ **Vérification de Docker** | Disponibilité de la CLI Docker contrôlée avant chaque appel, avec arrêt propre si absente |
 | ✅ **Feedback clair** | Messages de succès (`✅`) et d'erreur (`❌`) pour chaque opération |
@@ -64,8 +64,8 @@ Suite d'aliases `d*` qui simplifient et accélèrent vos workflows Docker direct
 
 | Domaine | Technologie |
 |---|---|
-| **Shell Linux** | [Bash](https://www.gnu.org/software/bash/) 4.0+ (ou [Zsh](https://www.zsh.org/)) |
-| **Shell macOS** | [Zsh](https://www.zsh.org/) 5.x (shell par défaut) ou Bash 4.0+ |
+| **Shell Linux** | [Bash](https://www.gnu.org/software/bash/) 4.0+ |
+| **Shell macOS** | [Zsh](https://www.zsh.org/) 5.x (shell par défaut) |
 | **Shell Windows** | [Windows PowerShell](https://learn.microsoft.com/powershell/) 5.1+ ou [PowerShell 7](https://learn.microsoft.com/powershell/) |
 | **Runtime** | [Docker CLI](https://docs.docker.com/) (Engine, Desktop ou tout runtime compatible) |
 | **Format** | Scripts shell / PowerShell — **aucune dépendance externe** |
@@ -81,10 +81,10 @@ L'implémentation suit une **architecture modulaire en couches**, chaque couche 
 
 ```
  Terminal / Shell de l'utilisateur
-      │      (~/.bashrc | ~/.zshrc | $PROFILE)
-      ▼
+│      (~/.bashrc | ~/.zshrc | $PROFILE)
+│      ▼
 ┌────────────────────────────┐
-│    index.sh / index.ps1    │  Point d'entrée — charge tous les modules
+│  index.sh / index.zsh / index.ps1 │  Point d'entrée — charge tous les modules
 └────────────┬───────────────┘
              ▼
 ┌────────────────────────────┐
@@ -102,10 +102,10 @@ L'implémentation suit une **architecture modulaire en couches**, chaque couche 
            Docker CLI
 ```
 
-- **`index.sh` / `index.ps1`** : source l'ensemble des modules situés dans son propre répertoire, quel que soit l'endroit où le projet a été copié.
+- **`index.sh` / `index.zsh` / `index.ps1`** : source l'ensemble des modules situés dans son propre répertoire, quel que soit l'endroit où le projet a été copié.
 - **Modules thématiques** : chacun expose les fonctions publiques `d*` d'un domaine Docker.
 - **Helpers** : portent la logique transversale (disponibilité de Docker, exécution, feedback coloré).
-- Les deux implémentations (`linux/` et `windows/`) sont **fonctionnellement équivalentes** : mêmes commandes, mêmes comportements. Les options suivent la convention de chaque shell — flags courts en bash (`-d`, `-a`, `-v`), paramètres nommés en PowerShell (`-Detach`, `-All`, `-Volumes`).
+- Les trois implémentations (`linux/`, `macos/` et `windows/`) sont **fonctionnellement équivalentes** : mêmes commandes, mêmes comportements. Les options suivent la convention de chaque shell — flags courts en bash/zsh (`-d`, `-a`, `-v`), paramètres nommés en PowerShell (`-Detach`, `-All`, `-Volumes`).
 
 ---
 
@@ -160,14 +160,13 @@ source ~/.bashrc      # ou : source ~/.zshrc
 
 ```bash
 mkdir -p ~/.config/alias
-cp -r linux ~/.config/alias/docker-commandes/
+cp -r macos ~/.config/alias/docker-commandes/
 ```
 
 ### 2. Ouvrir votre fichier de configuration shell
 
 ```bash
 nano ~/.zshrc         # Zsh (shell par défaut)
-nano ~/.bash_profile  # Bash
 ```
 
 ### 3. Importer les aliases
@@ -175,17 +174,17 @@ nano ~/.bash_profile  # Bash
 Ajoutez cette ligne à la fin du fichier :
 
 ```bash
-. ~/.config/alias/docker-commandes/linux/index.sh
+. ~/.config/alias/docker-commandes/macos/index.zsh
 ```
 
 ### 4. Recharger votre configuration
 
 ```bash
-source ~/.zshrc       # ou : source ~/.bash_profile
+source ~/.zshrc
 ```
 
 > 💡 Si Docker est absent : installez [Docker Desktop pour Mac](https://www.docker.com/products/docker-desktop/) ou la CLI via `brew install docker`.
-> ⚠️ Le Bash fourni par macOS (3.2) est trop ancien — utilisez Zsh ou installez un Bash moderne via Homebrew (`brew install bash`).
+> 🍎 La version macOS est écrite en **zsh natif** (scripts `.zsh`) — aucun besoin de Bash moderne. Les scripts utilisent la syntaxe native zsh pour les prompts (`read -r "var?prompt: "`), les tableaux et la résolution de chemin (`${0:A:h}`).
 
 ---
 
@@ -409,18 +408,18 @@ Get-Help dRunContainer
 
 Chaque module regroupe les fonctions d'un même thème. Les deux plateformes sont strictement alignées :
 
-| Fichier (Linux / Windows) | Fonctions |
+| Fichier (Linux / macOS / Windows) | Fonctions |
 |---|---|
-| `docker-helpers.sh` / `docker-helpers.ps1` | `d_check_cli`, `d_confirm`, `d_show_result`, `d_read_value`, `d_complete_image`, `d_local_images`, `d_image_exists`, `d_show_images`, `d_resolve_image`, `d_show_containers`, `d_container_names`, `d_container_exists`, `d_container_running`, `d_resolve_container`, `d_volume_names`, `d_volume_exists`, `d_network_names`, `d_network_exists`, `d_service_names`, `d_service_exists`, `d_resolve_service`, `d_doc_table` / `Test-DockerCLI`, `Assert-DockerCLI`, `Confirm-Action`, `Show-DockerResult`, `Read-Value`, `Complete-ImageName`, `Get-LocalImages`, `Test-ImageExists`, `Resolve-ImageName`, `Show-ContainerList`, `Get-ContainerNames`, `Test-ContainerExists`, `Test-ContainerRunning`, `Resolve-ContainerName`, `Get-VolumeNames`, `Test-VolumeExists`, `Get-NetworkNames`, `Test-NetworkExists`, `Get-ServiceNames`, `Test-ServiceExists`, `Resolve-ServiceName`, `Show-DocTable` |
-| `docker-system.sh` / `docker-system.ps1` | `dVersion`, `dInfo`, `dDiskSystem`, `dEvents`, `dPruneSystem`, `dLogin`, `dLogout` |
-| `docker-images.sh` / `docker-images.ps1` | `dImages`, `dBuildImage`, `dGetImage`, `dPushImage`, `dRemoveImage`, `dPruneImage`, `dTagImage`, `dSaveImage`, `dLoadImage`, `dHistoryImage`, `dInspectImage`, `dImageDocs` |
-| `docker-containers.sh` / `docker-containers.ps1` | `dContainers`, `dRunContainer`, `dCreateContainer`, `dStartContainer`, `dStopContainer`, `dRestartContainer`, `dKillContainer`, `dRemoveContainer`, `dLogsContainer`, `dExecContainer`, `dAttachContainer`, `dTopContainer`, `dStatsContainer`, `dWaitContainer`, `dRenameContainer`, `dUpdateContainer`, `dPauseContainer`, `dUnpauseContainer`, `dExportContainer`, `dCommitContainer`, `dDiffContainer`, `dCpContainer`, `dInspectContainer`, `dPortContainer`, `dContainerDocs` |
-| `docker-compose.sh` / `docker-compose.ps1` | `dComposes`, `dComposeUp`, `dComposeDown`, `dComposeBuild`, `dComposeLogs`, `dComposeExec`, `dComposeRestart`, `dComposePull`, `dComposeStop`, `dComposeConfig`, `dComposeValidate`, `dComposeDocs` |
-| `docker-volumes.sh` / `docker-volumes.ps1` | `dVolumes`, `dCreateVolume`, `dInspectVolume`, `dRemoveVolume`, `dPruneVolume`, `dVolumeDocs` |
-| `docker-networks.sh` / `docker-networks.ps1` | `dNetworks`, `dCreateNetwork`, `dInspectNetwork`, `dConnectNetwork`, `dDisconnectNetwork`, `dRemoveNetwork`, `dPruneNetwork`, `dNetworkDocs` |
-| `docker-swarm.sh` / `docker-swarm.ps1` | `dInitSwarm`, `dJoinSwarm`, `dLeaveSwarm`, `dSwarmToken`, `dNodes`, `dServices`, `dCreateService`, `dRemoveService`, `dScaleService`, `dServiceLogs`, `dStackDeploy`, `dStacks`, `dStackRemove`, `dSwarmDocs` |
-| `docker-docs.sh` / `docker-docs.ps1` | `dDocs` |
-| `docker-aliases.sh` / `docker-aliases.ps1` | Alias courts (`dps`, `drun`, `dstop`, `dlogs`, `dcup`...) et wrappers (`dpsa`, `drmf`, `drmv`, `drmif`) |
+| `docker-helpers.sh` / `docker-helpers.zsh` / `docker-helpers.ps1` | `d_check_cli`, `d_confirm`, `d_show_result`, `d_read_value`, `d_complete_image`, `d_local_images`, `d_image_exists`, `d_show_images`, `d_resolve_image`, `d_show_containers`, `d_container_names`, `d_container_exists`, `d_container_running`, `d_resolve_container`, `d_volume_names`, `d_volume_exists`, `d_network_names`, `d_network_exists`, `d_service_names`, `d_service_exists`, `d_resolve_service`, `d_doc_table` / `Test-DockerCLI`, `Assert-DockerCLI`, `Confirm-Action`, `Show-DockerResult`, `Read-Value`, `Complete-ImageName`, `Get-LocalImages`, `Test-ImageExists`, `Resolve-ImageName`, `Show-ContainerList`, `Get-ContainerNames`, `Test-ContainerExists`, `Test-ContainerRunning`, `Resolve-ContainerName`, `Get-VolumeNames`, `Test-VolumeExists`, `Get-NetworkNames`, `Test-NetworkExists`, `Get-ServiceNames`, `Test-ServiceExists`, `Resolve-ServiceName`, `Show-DocTable` |
+| `docker-system.sh` / `docker-system.zsh` / `docker-system.ps1` | `dVersion`, `dInfo`, `dDiskSystem`, `dEvents`, `dPruneSystem`, `dLogin`, `dLogout` |
+| `docker-images.sh` / `docker-images.zsh` / `docker-images.ps1` | `dImages`, `dBuildImage`, `dGetImage`, `dPushImage`, `dRemoveImage`, `dPruneImage`, `dTagImage`, `dSaveImage`, `dLoadImage`, `dHistoryImage`, `dInspectImage`, `dImageDocs` |
+| `docker-containers.sh` / `docker-containers.zsh` / `docker-containers.ps1` | `dContainers`, `dRunContainer`, `dCreateContainer`, `dStartContainer`, `dStopContainer`, `dRestartContainer`, `dKillContainer`, `dRemoveContainer`, `dLogsContainer`, `dExecContainer`, `dAttachContainer`, `dTopContainer`, `dStatsContainer`, `dWaitContainer`, `dRenameContainer`, `dUpdateContainer`, `dPauseContainer`, `dUnpauseContainer`, `dExportContainer`, `dCommitContainer`, `dDiffContainer`, `dCpContainer`, `dInspectContainer`, `dPortContainer`, `dContainerDocs` |
+| `docker-compose.sh` / `docker-compose.zsh` / `docker-compose.ps1` | `dComposes`, `dComposeUp`, `dComposeDown`, `dComposeBuild`, `dComposeLogs`, `dComposeExec`, `dComposeRestart`, `dComposePull`, `dComposeStop`, `dComposeConfig`, `dComposeValidate`, `dComposeDocs` |
+| `docker-volumes.sh` / `docker-volumes.zsh` / `docker-volumes.ps1` | `dVolumes`, `dCreateVolume`, `dInspectVolume`, `dRemoveVolume`, `dPruneVolume`, `dVolumeDocs` |
+| `docker-networks.sh` / `docker-networks.zsh` / `docker-networks.ps1` | `dNetworks`, `dCreateNetwork`, `dInspectNetwork`, `dConnectNetwork`, `dDisconnectNetwork`, `dRemoveNetwork`, `dPruneNetwork`, `dNetworkDocs` |
+| `docker-swarm.sh` / `docker-swarm.zsh` / `docker-swarm.ps1` | `dInitSwarm`, `dJoinSwarm`, `dLeaveSwarm`, `dSwarmToken`, `dNodes`, `dServices`, `dCreateService`, `dRemoveService`, `dScaleService`, `dServiceLogs`, `dStackDeploy`, `dStacks`, `dStackRemove`, `dSwarmDocs` |
+| `docker-docs.sh` / `docker-docs.zsh` / `docker-docs.ps1` | `dDocs` |
+| `docker-aliases.sh` / `docker-aliases.zsh` / `docker-aliases.ps1` | Alias courts (`dps`, `drun`, `dstop`, `dlogs`, `dcup`...) et wrappers (`dpsa`, `drmf`, `drmv`, `drmif`) |
 
 ---
 
@@ -428,7 +427,7 @@ Chaque module regroupe les fonctions d'un même thème. Les deux plateformes son
 
 ```
 docker-commandes/
-├── linux/                     # Implémentation Bash pour Linux/macOS
+├── linux/                     # Implémentation Bash pour Linux
 │   ├── index.sh               # Point d'entrée (charge tous les modules)
 │   ├── docker-helpers.sh      # Utilitaires partagés (d_check_cli, d_confirm...)
 │   ├── docker-system.sh       # dVersion, dInfo, dDiskSystem, dPruneSystem...
@@ -441,6 +440,19 @@ docker-commandes/
 │   ├── docker-docs.sh         # dDocs (cheat sheet intégrée)
 │   ├── docker-aliases.sh      # Alias courts (dps, drun, dstop, dlogs...)
 │   └── README.md              # Guide d'installation Linux
+├── macos/                     # Implémentation Zsh pour macOS
+│   ├── index.zsh              # Point d'entrée (sourcez depuis ~/.zshrc)
+│   ├── docker-helpers.zsh     # Utilitaires partagés (d_check_cli, d_confirm...)
+│   ├── docker-system.zsh      # dVersion, dInfo, dDiskSystem, dPruneSystem...
+│   ├── docker-images.zsh      # dImages, dBuildImage, dGetImage, dPushImage...
+│   ├── docker-containers.zsh  # dContainers, dRunContainer, dStopContainer...
+│   ├── docker-compose.zsh     # dComposes, dComposeUp, dComposeDown...
+│   ├── docker-volumes.zsh     # dVolumes, dCreateVolume, dPruneVolume...
+│   ├── docker-networks.zsh    # dNetworks, dCreateNetwork, dPruneNetwork...
+│   ├── docker-swarm.zsh       # dInitSwarm, dNodes, dServices, dStacks...
+│   ├── docker-docs.zsh        # dDocs (cheat sheet intégrée)
+│   ├── docker-aliases.zsh     # Alias courts (dps, drun, dstop, dlogs...)
+│   └── README.md              # Guide d'installation macOS
 └── windows/                   # Implémentation PowerShell pour Windows
     ├── index.ps1              # Point d'entrée PowerShell (sourcez depuis $PROFILE)
     ├── docker-helpers.ps1     # Utilitaires partagés (Test-DockerCLI, Confirm-Action...)
@@ -462,20 +474,20 @@ docker-commandes/
 
 ### Linux
 
-1. Supprimez la ligne d'import de `~/.bashrc` (ou `~/.zshrc`).
+1. Supprimez la ligne d'import de `~/.bashrc`.
 2. Supprimez le répertoire :
 
 ```bash
-rm -rf ~/.config/alias/docker-commandes
+rm -rf ~/.config/alias/docker-commandes/linux
 ```
 
 ### macOS
 
-1. Supprimez la ligne d'import de `~/.zshrc` (ou `~/.bash_profile`).
+1. Supprimez la ligne d'import de `~/.zshrc`.
 2. Supprimez le répertoire :
 
 ```bash
-rm -rf ~/.config/alias/docker-commandes
+rm -rf ~/.config/alias/docker-commandes/macos
 ```
 
 ### Windows
@@ -496,9 +508,9 @@ Remove-Item -Path "$HOME\.config\alias\docker-commandes" -Recurse -Force
 | Les commandes ne fonctionnent pas | Vérifiez le chemin dans la ligne d'import, puis rechargez : `source ~/.bashrc` (Linux), `source ~/.zshrc` (macOS) ou `. $PROFILE` (Windows) |
 | `❌ Docker CLI not found` | Installez Docker (`sudo apt install docker.io` sous Debian/Ubuntu, Docker Desktop ou `brew install docker` sous macOS, Docker Desktop sous Windows) et redémarrez votre terminal |
 | `command not found: dContainers` | Les fonctions ne sont pas chargées : confirmez la présence de la ligne d'import correspondant à votre plateforme dans votre fichier de configuration |
-| `Module not found: ...` (jaune) | Un fichier de module est absent — réinstallez le dossier `linux/` ou `windows/` en entier |
-| Erreurs de syntaxe sur macOS | Le Bash 3.2 fourni par macOS est obsolète — utilisez Zsh, ou installez un Bash moderne via Homebrew |
-| Les alias ne s'expandent pas dans un script | Les alias bash ne s'appliquent qu'aux shells interactifs — utilisez le nom complet de la fonction (ex. `dContainers`) |
+| `Module not found: ...` (jaune) | Un fichier de module est absent — réinstallez le dossier `linux/`, `macos/` ou `windows/` en entier |
+| Erreurs de syntaxe sur macOS | Vérifiez que vous sourcez `macos/index.zsh` dans zsh — les scripts `.zsh` utilisent la syntaxe native zsh et ne sont pas destinés à bash |
+| Les alias ne s'expandent pas dans un script | Les alias bash/zsh ne s'appliquent qu'aux shells interactifs — utilisez le nom complet de la fonction (ex. `dContainers`) |
 | `Get-Help` ne retourne rien | Rechargez le profil (`. $PROFILE`) pour que les fonctions soient définies |
 
 ---
